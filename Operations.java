@@ -29,72 +29,62 @@ public class Operations {
         return build.toString();
     }
 
-    public static String Solve(String formula){
-        Stack<String> tempStack = new Stack<>();//Store number or operator
-        Stack<Character> operatorStack = new Stack<Character>();//Store operator
-        int len = formula.length();
-        int k = 0;
-        for(int j = -1; j < len - 1; j++){
-            char formulaChar = formula.charAt(j + 1);
-            if(j == len - 2 || formulaChar == '+' || formulaChar == '-' || formulaChar == '/' || formulaChar == '*') {
-                if (j == len - 2) {
-                    tempStack.push(formula.substring(k));
-                }
-                else {
-                    if(k < j){
-                        tempStack.push(formula.substring(k, j + 1));
-                    }
-                    if(operatorStack.empty()){
-                        operatorStack.push(formulaChar); //if operatorStack is empty, store it
-                    }else{
-                        char stackChar = operatorStack.peek();
-                        if ((stackChar == '+' || stackChar == '-')
-                                && (formulaChar == '*' || formulaChar == '/')){
-                            operatorStack.push(formulaChar);
-                        }else {
-                            tempStack.push(operatorStack.pop().toString());
-                            operatorStack.push(formulaChar);
-                        }
-                    }
-                }
-                k = j + 2;
-            }
-        }
-        while (!operatorStack.empty()){ // Append remaining operators
-            tempStack.push(operatorStack.pop().toString());
-        }
-        Stack<String> calcStack = new Stack<>();
-        for(String peekChar : tempStack){ // Reverse traversing of stack
-            if(!peekChar.equals("+") && !peekChar.equals("-") && !peekChar.equals("/") && !peekChar.equals("*")) {
-                calcStack.push(peekChar); // Push number to stack
-            }else{
-                int a1 = 0;
-                int b1 = 0;
-                if(!calcStack.empty()){
-                    b1 = Integer.parseInt(calcStack.pop());
-                }
-                if(!calcStack.empty()){
-                    a1 = Integer.parseInt(calcStack.pop());
-                }
-                switch (peekChar) {
-                    case "+":
-                        calcStack.push(String.valueOf(a1 + b1));
-                        break;
-                    case "-":
-                        calcStack.push(String.valueOf(a1 - b1));
-                        break;
-                    case "*":
-                        calcStack.push(String.valueOf(a1 * b1));
-                        break;
-                    default:
-                        calcStack.push(String.valueOf(a1 / b1));
-                        break;
-                }
-            }
-        }
-        return formula + "=" + calcStack.pop();
+    public static String Solve(String formula) {
+    if (formula == null || formula.isBlank()) {
+        return "Error: fórmula vacía";
     }
 
+    // Eliminar espacios para evitar errores
+    formula = formula.replaceAll("\\s+", "");
 
+    // Buscar el operador (+, -, *, /)
+    int operatorPos = -1;
+    char operator = 0;
+
+    // Empieza en 1 para permitir número negativo al inicio
+    for (int i = 1; i < formula.length(); i++) {
+        char c = formula.charAt(i);
+        if (c == '+' || c == '-' || c == '*' || c == '/') {
+            operator = c;
+            operatorPos = i;
+            break;
+        }
+    }
+
+    if (operatorPos == -1) {
+        // No hay operador, se asume número solo
+        try {
+            Integer.parseInt(formula);
+            return formula;
+        } catch (NumberFormatException e) {
+            return "Error: formato numérico incorrecto";
+        }
+    }
+
+    try {
+        String left = formula.substring(0, operatorPos);
+        String right = formula.substring(operatorPos + 1);
+
+        int num1 = Integer.parseInt(left);
+        int num2 = Integer.parseInt(right);
+
+        switch (operator) {
+            case '+':
+                return String.valueOf(num1 + num2);
+            case '-':
+                return String.valueOf(num1 - num2);
+            case '*':
+                return String.valueOf(num1 * num2);
+            case '/':
+                if (num2 == 0) return "Error: división por cero";
+                return String.valueOf(num1 / num2);
+            default:
+                return "Error: operador desconocido";
+        }
+    } catch (NumberFormatException e) {
+        return "Error: formato numérico incorrecto";
+    }
+}
 
 }
+
